@@ -446,43 +446,65 @@
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- DEV TOOLS PROTECTION ---
-        // This script detects if the user opens developer tools and blocks the page.
-        // It's a deterrent, not true encryption, as client-side code must be readable by the browser.
+    // --- DEV TOOLS PROTECTION (IMMEDIATE EXECUTION) ---
+    // This script runs before DOMContentLoaded to be as fast as possible.
+    (function() {
         const devToolsProtection = (() => {
-            let intervalId = null;
+            let blocked = false;
             const threshold = 160;
 
             function check() {
+                if (blocked) return;
+                
                 const startTime = new Date().getTime();
-                debugger; // This line will pause execution only if dev tools are open
+                // The debugger statement is a key part of the detection.
+                // If dev tools are open, execution will pause here, causing a time difference.
+                debugger;
                 const endTime = new Date().getTime();
+
                 if (endTime - startTime > threshold) {
                     blockAccess();
                 }
             }
 
             function blockAccess() {
-                if (intervalId) {
-                    clearInterval(intervalId);
-                }
-                document.body.innerHTML = `
-                    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center; color: white; flex-direction: column; background-color: #0D1117;">
-                        <h1 style="font-size: 2rem; font-weight: bold;">Access Denied</h1>
-                        <p style="font-size: 1rem;">Code inspection is not permitted.</p>
-                    </div>
+                if (blocked) return;
+                blocked = true;
+                // Immediately replace the entire page content. This is faster and more destructive
+                // to the DOM than trying to hide individual elements.
+                document.documentElement.innerHTML = `
+                    <body style="display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center; color: white; flex-direction: column; background-color: #0D1117; margin: 0;">
+                        <h1 style="font-size: 2rem; font-weight: bold; font-family: sans-serif;">Access Denied</h1>
+                        <p style="font-size: 1rem; font-family: sans-serif;">Code inspection is not permitted.</p>
+                    </body>
                 `;
+                // Enter an infinite loop to freeze the dev tools console, making it difficult to use.
+                while (true) {}
+            }
+
+            // Use requestAnimationFrame for a more persistent and performant check loop.
+            function loop() {
+                check();
+                window.requestAnimationFrame(loop);
             }
 
             return {
                 start: () => {
-                    intervalId = setInterval(check, 1000);
+                    // Don't wait for DOMContentLoaded. Start the protection immediately.
+                    try {
+                       loop();
+                    } catch(e) {
+                       // Ignore errors that might occur during the loop
+                    }
                 }
             };
         })();
+        
+        devToolsProtection.start();
+    })();
 
 
+    document.addEventListener('DOMContentLoaded', () => {
         // --- MATRIX EFFECT ---
         const matrixEffect = (() => {
             let canvas, ctx, columns, drops, animationId;
@@ -552,6 +574,9 @@
             customBgFilename: 'bg.png',
             smallCardLiquidEffect: true,
             modalLiquidEffect: true,
+            // FIX: Obfuscated passwords
+            adminPass: 'a3Bk', // Base64 of 'kpd' (dpk reversed)
+            hirePass: 'ZGVyaWg=', // Base64 of 'derih' (hired reversed)
             animationSettings: {
                 type: 'rainbow',
                 rainbowSpeed: 5,
@@ -842,9 +867,13 @@
                 clearTimeout(clickTimer);
             }
         }
+        
+        // FIX: De-obfuscate password before checking
+        const decodePass = (pass) => atob(pass).split('').reverse().join('');
+
         function unlockEditor() {
             const passwordInput = document.getElementById('password-input');
-            if (passwordInput.value.toLowerCase() === 'dpk') {
+            if (passwordInput.value.toLowerCase() === decodePass(siteData.adminPass)) {
                 document.getElementById('password-modal').classList.add('hidden');
                 passwordInput.value = '';
                 document.getElementById('password-error').classList.add('hidden');
@@ -885,7 +914,7 @@
         });
         function checkHirePassword() {
             const hirePasswordInput = document.getElementById('hire-password-input');
-            if (hirePasswordInput.value.toLowerCase() === 'hired') {
+            if (hirePasswordInput.value.toLowerCase() === decodePass(siteData.hirePass)) {
                 sessionStorage.setItem('visitorUnlocked', 'true');
                 document.getElementById('hire-password-modal').classList.add('hidden');
                 hirePasswordInput.value = '';
@@ -992,17 +1021,25 @@
              editorPanel.classList.remove('hidden');
              document.body.classList.remove('in-preview-mode');
         });
-        document.body.addEventListener('contextmenu', (e) => {
-            const el = document.getElementById('editor-panel');
-            if (!el.classList.contains('hidden') && el.contains(e.target)) return;
-            e.preventDefault();
+
+        // FIX: Enhanced copy and context menu protection
+        ['contextmenu', 'copy', 'cut'].forEach(eventName => {
+            document.body.addEventListener(eventName, (e) => {
+                // Allow actions inside the editor panel's inputs and textareas
+                const editor = document.getElementById('editor-panel');
+                if (editor && !editor.classList.contains('hidden')) {
+                    const target = e.target;
+                    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+                        return; // Allow action
+                    }
+                }
+                e.preventDefault();
+            });
         });
 
         // --- INITIALIZATION ---
-        devToolsProtection.start(); // Start the anti-inspection script
         renderAll();
     });
     </script>
 </body>
 </html>
-
