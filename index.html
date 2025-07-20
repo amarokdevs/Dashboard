@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deepak Dev - Ethical Hacking Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style id="main-styles">
+        :root {
+            /* Default Animation Values */
+            --rainbow-speed: 5s;
+            --rainbow-motion: linear;
+            --chase-speed: 3s;
+        }
+        html {
+            height: 100%;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0D1117;
+            background-image: radial-gradient(circle at 1% 1%, #2c3e50 0%, transparent 50%),
+                              radial-gradient(circle at 99% 99%, #1c2833 0%, transparent 50%);
+            overflow-x: hidden;
+            color: #E6E6E6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-attachment: fixed;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            display: none; 
+        }
+
+        #main-content {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
+            z-index: 10;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) skewX(-30deg); }
+            100% { transform: translateX(200%) skewX(-30deg); }
+        }
+
+        .glass {
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px) saturate(150%);
+            -webkit-backdrop-filter: blur(8px) saturate(150%);
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        
+        .glass::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 60%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* --- BORDER ANIMATION DEFINITIONS --- */
+        @keyframes rotate-border {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes chase-border {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        /* --- BORDER ANIMATION CLASSES --- */
+        .animation-rainbow::before, .animation-chase::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: inherit;
+            padding: 2px;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: 1;
+            pointer-events: none; /* Let clicks pass through the animation layer */
+        }
+        .animation-rainbow::before {
+            background: conic-gradient(from 0deg, #8983F7, #A3A8F8, #C3D8F7, #E3E2F5, #F7D8F5, #F5BBE8, #E395D8, #C368B8, #A34898, #8983F7);
+            animation: rotate-border var(--rainbow-speed) var(--rainbow-motion) infinite;
+        }
+        .animation-chase::before {
+            background: linear-gradient(90deg, transparent, #A3A8F8, transparent);
+            background-size: 300% 100%;
+            animation: chase-border var(--chase-speed) linear infinite alternate; /* Changed to loop back and forth */
+        }
+
+        .card-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; width: 100%; }
+        .project-card { 
+            padding: 1.5rem; 
+            display: flex; 
+            flex-direction: column; 
+            transition: transform 0.3s ease, box-shadow 0.3s ease; 
+            cursor: pointer;
+            position: relative;
+        }
+        .shimmer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
+            transform: translateX(-100%) skewX(-30deg);
+            pointer-events: none;
+        }
+        .project-card:hover .shimmer {
+            animation: shimmer 1.5s ease-in-out;
+        }
+        
+        .project-card:hover { transform: translateY(-8px); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3); }
+        .card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; position: relative; z-index: 2; }
+        .icon { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+        .icon img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+        .card-title { font-size: 1.25rem; font-weight: 600; color: #ffffff; }
+        .card-subtitle { font-size: 0.875rem; color: rgba(255, 255, 255, 0.7); }
+        .card-content { flex-grow: 1; font-size: 0.95rem; line-height: 1.6; position: relative; z-index: 2; }
+        .card-description {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .btn-glass { display: inline-block; margin-top: 1.5rem; padding: 0.75rem 1.5rem; text-align: center; color: white; font-weight: 500; text-decoration: none; transition: background-color 0.3s ease; }
+        .btn-glass:hover { background-color: rgba(255, 255, 255, 0.2); }
+
+        .blob { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.25; z-index: -2; will-change: transform; }
+        .blob1 { width: 500px; height: 500px; top: -200px; left: -200px; background: #5f27cd; animation: move1 30s infinite alternate; }
+        .blob2 { width: 400px; height: 400px; bottom: -150px; right: -150px; background: #0097e6; animation: move2 35s infinite alternate-reverse; }
+        .blob3 { width: 300px; height: 300px; top: 40%; left: 50%; transform: translate(-50%, -50%); background: #8c7ae6; animation: move1 25s infinite; }
+        @keyframes move1 { from { transform: translate(0, 0) rotate(0deg) scale(1); } to { transform: translate(150px, 100px) rotate(180deg) scale(1.2); } }
+        @keyframes move2 { from { transform: translate(0, 0) rotate(0deg) scale(1); } to { transform: translate(-100px, -50px) rotate(-180deg) scale(1.1); } }
+
+        .project-card.is-locked > * {
+            filter: blur(4px);
+            pointer-events: none;
+        }
+        .project-card.is-locked::after {
+            content: '';
+            background-image: url('images/lock.png');
+            background-size: 64px 64px;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+            filter: none;
+        }
+        
+        #project-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 998;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #project-modal.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .project-modal-content {
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+        }
+        .project-modal-content:hover .shimmer {
+            animation: shimmer 1.5s ease-in-out;
+        }
+        .project-modal-content::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+    <style id="editor-styles">
+        body.is-dragging * { user-select: none !important; -webkit-user-select: none !important; }
+        .editor-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 999; display: flex; align-items: center; justify-content: center; }
+        
+        #editor-panel * { user-select: text; -webkit-user-select: text; }
+        
+        #password-modal *, #hire-password-modal * { user-select: none; -webkit-user-select: none; }
+        #password-modal input, #hire-password-modal input { user-select: text; -webkit-user-select: text; }
+
+        .editor-modal { padding: 1rem; width: 90%; }
+        #editor-panel .editor-modal { 
+            max-height: 90vh; 
+            overflow-y: auto; 
+            max-width: 800px;
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        #editor-panel .editor-modal::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, and Opera */
+        }
+        #password-modal .editor-modal, #hire-password-modal .editor-modal { max-width: 400px; overflow: hidden; }
+        .modal-content-wrapper { position: relative; z-index: 2; }
+        .editor-modal h2 { font-size: 1.8rem; font-weight: bold; margin-bottom: 1rem; }
+        .editor-modal h3 { font-size: 1.2rem; font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.5rem; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 1.5rem; }
+        .editor-modal label { display: block; margin-top: 0.8rem; font-weight: 500; color: rgba(255,255,255,0.8); }
+        .editor-modal input, .editor-modal textarea, .editor-modal select { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.5rem; padding: 0.5rem 0.75rem; color: white; margin-top: 0.25rem; }
+        .editor-modal input[type="number"] { padding-right: 1.5rem; }
+        .editor-modal input:focus, .editor-modal textarea:focus, .editor-modal select:focus { outline: none; border-color: #A3A8F8; }
+        .editor-modal select option { background-color: #0D1117; color: white; }
+        .editor-btn { background-color: #8983F7; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 0.5rem; cursor: pointer; transition: background-color 0.3s; font-weight: 500; }
+        .editor-btn.danger { background-color: #E395D8; }
+        .editor-btn.success { background-color: #4ade80; }
+        .editor-btn.secondary { background-color: #a8a29e; }
+        .draggable-form { cursor: grab; }
+        .draggable-form:active { cursor: grabbing; }
+        .dragging { opacity: 0.5; background: rgba(137, 131, 247, 0.3) !important; }
+        #exit-preview-btn { display: none; position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1000; }
+        body.in-preview-mode #exit-preview-btn { display: block; }
+        #protection-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #000; color: #0F0;
+            display: none; align-items: center; justify-content: center;
+            font-family: 'Courier New', Courier, monospace; font-size: 2rem;
+            z-index: 10000; text-align: center;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 lg:p-8">
+
+    <div id="protection-overlay">ops ! you are to smart</div>
+    <canvas id="matrix-canvas"></canvas>
+
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+    <div class="blob blob3"></div>
+
+    <div id="main-content" class="w-full max-w-6xl mx-auto z-10">
+        
+        <header class="text-center my-12">
+            <h1 id="main-header" class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight"></h1>
+            <p id="main-subheader" class="text-lg sm:text-xl text-gray-300 mt-2"></p>
+        </header>
+
+        <main id="projects-container" class="card-container">
+            </main>
+
+        <footer class="text-center my-16 text-gray-400">
+            <p id="footer-text"></p>
+            <div id="social-links-container" class="flex justify-center space-x-6 mt-4">
+                </div>
+        </footer>
+    </div>
+    
+    <div id="password-modal" class="editor-overlay hidden">
+        <div class="glass editor-modal">
+            <div class="modal-content-wrapper">
+                <h2>Enter Password</h2>
+                <input type="password" id="password-input" placeholder="Password">
+                <button id="password-submit" class="editor-btn mt-4">Unlock</button>
+                <p id="password-error" class="text-red-400 mt-2 hidden">Incorrect Password</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="hire-password-modal" class="editor-overlay hidden">
+        <div class="glass editor-modal">
+            <div class="modal-content-wrapper">
+                <h2>Enter Access Code</h2>
+                <input type="password" id="hire-password-input" placeholder="Code">
+                <div class="flex gap-4 mt-4">
+                    <button id="hire-password-cancel" class="editor-btn secondary w-full">Cancel</button>
+                    <button id="hire-password-submit" class="editor-btn w-full">Unlock</button>
+                </div>
+                <p id="hire-password-error" class="text-red-400 mt-2 hidden">Sorry, you can't access it.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="editor-panel" class="editor-overlay hidden">
+        <div class="glass editor-modal">
+            <div class="modal-content-wrapper">
+                <div class="flex justify-between items-center flex-wrap gap-2 mb-5">
+                    <h2>Live Content Editor</h2>
+                    <div class="flex gap-2">
+                        <button id="preview-btn" class="editor-btn secondary">Preview</button>
+                        <button id="close-editor" class="editor-btn danger">Close</button>
+                    </div>
+                </div>
+                
+                <div id="instruction-box" class="glass p-4 my-4">
+                    <h3 class="mt-0 pt-0 border-none font-bold">Instructions</h3>
+                    <p class="text-sm">1. Edit any field below to see live updates on the page.</p>
+                    <p class="text-sm">2. To customize animations, choose an effect and its settings will appear.</p>
+                    <p class="text-sm">3. To reorder projects or social links, simply <strong>drag and drop</strong> the panels below.</p>
+                    <p class="text-sm">4. When you're done, click "Generate & Download HTML" to get a clean file to upload.</p>
+                </div>
+
+                <h3>General & Appearance</h3>
+                <label for="header-input">Main Header</label>
+                <input type="text" id="header-input">
+                <label for="subheader-input">Sub-Header</label>
+                <input type="text" id="subheader-input">
+                <label for="footer-input">Footer Text</label>
+                <input type="text" id="footer-input">
+
+                <div class="mt-4 p-4 glass">
+                    <h4 class="font-bold text-lg mb-2">Animation Controls</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="animation-type-select" class="!mt-0">Border Effect</label>
+                            <select id="animation-type-select">
+                                <option value="rainbow">Rainbow Rotate</option>
+                                <option value="chase">Chase</option>
+                                <option value="none">None</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-3 self-end pb-1">
+                            <input type="checkbox" id="lock-content-toggle" class="h-5 w-5 accent-pink-500">
+                            <label for="lock-content-toggle" class="!mt-0">Enable Project Locking</label>
+                        </div>
+                    </div>
+                    <div id="rainbow-settings" class="grid grid-cols-2 gap-4 mt-2">
+                        <div>
+                            <label>Rotation Speed (s)</label>
+                            <input type="number" id="rainbow-speed-input" step="0.1" min="0">
+                        </div>
+                        <div>
+                            <label>Motion</label>
+                            <select id="rainbow-motion-select">
+                                <option value="linear">Linear</option>
+                                <option value="ease-in-out">Ease In/Out</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="chase-settings" class="hidden mt-2">
+                        <label>Chase Speed (s)</label>
+                        <input type="number" id="chase-speed-input" step="0.1" min="0">
+                    </div>
+                     <div class="flex items-center gap-3 mt-4">
+                        <input type="checkbox" id="matrix-bg-toggle" class="h-5 w-5 accent-green-500">
+                        <label for="matrix-bg-toggle" class="!mt-0">Enable Matrix Background</label>
+                    </div>
+                </div>
+
+                <div id="project-editor-forms">
+                    <h3>Projects</h3>
+                </div>
+                
+                <div id="social-links-editor">
+                    <h3>Social Links</h3>
+                    <button id="add-social-link-btn" class="editor-btn mt-4">Add New Link</button>
+                </div>
+
+                <div class="flex justify-between items-center mt-6 border-t border-gray-700 pt-4">
+                    <button id="add-project-btn" class="editor-btn">Add New Project</button>
+                    <button id="download-html-btn" class="editor-btn success">Generate & Download HTML</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <button id="exit-preview-btn" class="editor-btn glass">Re-open Editor</button>
+
+    <div id="project-modal">
+        <div class="project-modal-content glass">
+             <div class="shimmer"></div>
+             <div class="card-header items-center">
+                 <div id="modal-icon" class="icon glass"></div>
+                 <div>
+                     <h3 id="modal-title" class="card-title text-2xl"></h3>
+                     <p id="modal-subtitle" class="card-subtitle"></p>
+                 </div>
+             </div>
+             <div class="card-content">
+                 <p id="modal-description" class="text-base"></p>
+                 <a id="modal-link" href="#" class="btn-glass glass" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+             </div>
+             <button id="modal-close-btn" class="absolute top-4 right-4 text-2xl hover:text-white transition-colors">&times;</button>
+        </div>
+    </div>
+
+    <script>
+    // --- SECURITY FEATURES ---
+    const protection = (() => {
+        const overlay = document.getElementById('protection-overlay');
+        function showOverlay() {
+            overlay.style.display = 'flex';
+            // Stop everything
+            while(true) {
+                debugger;
+            }
+        }
+
+        // DevTools detection
+        let devtools = false;
+        const detector = document.createElement('div');
+        Object.defineProperty(detector, 'id', {
+            get: function() {
+                devtools = true;
+                showOverlay();
+                return '';
+            }
+        });
+        setInterval(() => {
+            if (window.devtools && window.devtools.isOpen) {
+                 showOverlay();
+            }
+            const before = new Date().getTime();
+            debugger;
+            const after = new Date().getTime();
+            if (after - before > 100) {
+                showOverlay();
+            }
+            console.log(detector);
+            console.clear();
+        }, 1000);
+    })();
+
+    const cryptoUtils = (() => {
+        const keyMaterial = 'a-very-secret-key-that-is-super-secure'; // In a real app, this would be handled more securely
+        let cryptoKey;
+
+        async function getKey() {
+            if (cryptoKey) return cryptoKey;
+            const enc = new TextEncoder();
+            const importedKey = await window.crypto.subtle.importKey(
+                'raw',
+                enc.encode(keyMaterial),
+                { name: 'PBKDF2' },
+                false,
+                ['deriveKey']
+            );
+            cryptoKey = await window.crypto.subtle.deriveKey(
+                {
+                    name: 'PBKDF2',
+                    salt: enc.encode('some-salt'),
+                    iterations: 100000,
+                    hash: 'SHA-256'
+                },
+                importedKey,
+                { name: 'AES-GCM', length: 256 },
+                true,
+                ['encrypt', 'decrypt']
+            );
+            return cryptoKey;
+        }
+
+        async function encrypt(text) {
+            const key = await getKey();
+            const iv = window.crypto.getRandomValues(new Uint8Array(12));
+            const encodedText = new TextEncoder().encode(text);
+            const encryptedData = await window.crypto.subtle.encrypt(
+                { name: 'AES-GCM', iv: iv },
+                key,
+                encodedText
+            );
+            const buffer = new Uint8Array(iv.length + encryptedData.byteLength);
+            buffer.set(iv, 0);
+            buffer.set(new Uint8Array(encryptedData), iv.length);
+            return Array.from(buffer).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function decrypt(hex) {
+            try {
+                const key = await getKey();
+                const encryptedBytes = new Uint8Array(hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+                const iv = encryptedBytes.slice(0, 12);
+                const data = encryptedBytes.slice(12);
+                const decryptedData = await window.crypto.subtle.decrypt(
+                    { name: 'AES-GCM', iv: iv },
+                    key,
+                    data
+                );
+                return new TextDecoder().decode(decryptedData);
+            } catch (e) {
+                console.error("Decryption failed:", e);
+                return ""; // Return empty string on failure
+            }
+        }
+        
+        return { encrypt, decrypt };
+    })();
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+        // --- MATRIX EFFECT ---
+        const matrixEffect = (() => {
+            let canvas, ctx, columns, drops, animationId;
+            const chars = "アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン0123456789";
+            const font_size = 14;
+
+            function init() {
+                canvas = document.getElementById('matrix-canvas');
+                if (!canvas) return;
+                ctx = canvas.getContext('2d');
+                resize();
+                window.addEventListener('resize', resize);
+            }
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                columns = canvas.width / font_size;
+                drops = [];
+                for (let x = 0; x < columns; x++) drops[x] = 1;
+            }
+
+            function draw() {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#0F0";
+                ctx.font = font_size + "px arial";
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = chars[Math.floor(Math.random() * chars.length)];
+                    ctx.fillText(text, i * font_size, drops[i] * font_size);
+                    if (drops[i] * font_size > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+
+            return {
+                start: () => {
+                    init();
+                    if (canvas) {
+                        canvas.style.display = 'block';
+                        if (!animationId) animationId = setInterval(draw, 33);
+                    }
+                },
+                stop: () => {
+                    if (canvas) canvas.style.display = 'none';
+                    if (animationId) {
+                        clearInterval(animationId);
+                        animationId = null;
+                    }
+                }
+            };
+        })();
+
+        // --- DATA MODEL (ENCRYPTED) ---
+        let siteData = {
+            header: "2087532b2f638546b5a794950e189d2d2a45d06456f9472f883216894c73f324",
+            subheader: "2c7979603e678345b2b2919d0813952d2f44c9655bf9462d8531149d4c79f925b682b13b482264c740",
+            footer: "f89d7b2735628143b1a2939203199c262847c26456fd4727823512884f7cf423b782b13b482264c740b2848937740f96894d",
+            projectLockingEnabled: false,
+            matrixBackgroundEnabled: false,
+            animationSettings: {
+                type: 'rainbow', 
+                rainbowSpeed: 5,
+                rainbowMotion: 'linear',
+                chaseSpeed: 3
+            },
+            projects: [
+                { id: 1, title: "0287532b2f638546b5a794950e189d2d2a45d06456f9472f883216894c73f324b19c80", subtitle: "2087532b2f638546b5a794950e189d2d2a45d06456f9472f883216894c73f324b19c80", description: "f89d7b2735628143b1a2939203199c262847c26456fd4727823512884f7cf423b782b13b482264c740b2848937740f96894d", icon: "dpk1.png", link: "#", locked: false },
+                { id: 2, title: "0287532b2f638546b5a794950e189d2d2a45d06456f9472f883216894c73f324b19c80", subtitle: "2087532b2f638546b5a794950e189d2d2a45d06456f9472f883216894c73f324b19c80", description: "f89d7b2735628143b1a2939203199c262847c26456fd4727823512884f7cf423b782b13b482264c740b2848937740f96894d", icon: "dpk2.png", link: "#", locked: false },
+                { id: 3, title: "0287532b2f638546b5a794950e189d2d2a45d06456f9472f883216894c73f324b19c80", subtitle: "2087532b2f638546b5a794950e189d2d2a45d06456f9472f883216894c73f324b19c80", description: "f89d7b2735628143b1a2939203199c262847c26456fd4727823512884f7cf423b782b13b482264c740b2848937740f96894d", icon: "dpk3.png", link: "#", locked: true }
+            ],
+            socialLinks: [
+                { id: 1, name: "GitHub", url: "#" },
+                { id: 2, name: "LinkedIn", url: "#" },
+                { id: 3, name: "Twitter / X", url: "#" }
+            ]
+        };
+
+        // --- DOM ELEMENTS ---
+        const mainHeader = document.getElementById('main-header');
+        const mainSubheader = document.getElementById('main-subheader');
+        const footerText = document.getElementById('footer-text');
+        const socialLinksContainer = document.getElementById('social-links-container');
+        const projectsContainer = document.getElementById('projects-container');
+        const editorPanel = document.getElementById('editor-panel');
+        const headerInput = document.getElementById('header-input');
+        const subheaderInput = document.getElementById('subheader-input');
+        const footerInput = document.getElementById('footer-input');
+        const lockContentToggle = document.getElementById('lock-content-toggle');
+        const matrixBgToggle = document.getElementById('matrix-bg-toggle');
+        const projectEditorForms = document.getElementById('project-editor-forms');
+        const socialLinksEditor = document.getElementById('social-links-editor');
+        const projectModal = document.getElementById('project-modal');
+        const modalIcon = document.getElementById('modal-icon');
+        const modalTitle = document.getElementById('modal-title');
+        const modalSubtitle = document.getElementById('modal-subtitle');
+        const modalDescription = document.getElementById('modal-description');
+        const modalLink = document.getElementById('modal-link');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        // Animation Controls
+        const animationTypeSelect = document.getElementById('animation-type-select');
+        const rainbowSettingsEl = document.getElementById('rainbow-settings');
+        const rainbowSpeedInput = document.getElementById('rainbow-speed-input');
+        const rainbowMotionSelect = document.getElementById('rainbow-motion-select');
+        const chaseSettingsEl = document.getElementById('chase-settings');
+        const chaseSpeedInput = document.getElementById('chase-speed-input');
+
+        // --- ANIMATION LOGIC ---
+        function applyAnimationEffect() {
+            const root = document.documentElement;
+            const settings = siteData.animationSettings;
+            
+            root.style.setProperty('--rainbow-speed', settings.rainbowSpeed + 's');
+            root.style.setProperty('--rainbow-motion', settings.rainbowMotion);
+            root.style.setProperty('--chase-speed', settings.chaseSpeed + 's');
+
+            const animatedElements = document.querySelectorAll('#main-content .glass, #project-modal .glass, #hire-password-modal .glass, #password-modal .glass');
+            const animationClass = `animation-${settings.type}`;
+
+            animatedElements.forEach(el => {
+                el.classList.remove('animation-rainbow', 'animation-chase');
+                if (settings.type !== 'none') {
+                    el.classList.add(animationClass);
+                }
+            });
+        }
+        
+        function updateMatrixState() {
+            if (siteData.matrixBackgroundEnabled) {
+                matrixEffect.start();
+            } else {
+                matrixEffect.stop();
+            }
+        }
+
+        // --- RENDER FUNCTIONS (WITH DECRYPTION) ---
+        async function renderAll() {
+            const [header, subheader, footer] = await Promise.all([
+                cryptoUtils.decrypt(siteData.header),
+                cryptoUtils.decrypt(siteData.subheader),
+                cryptoUtils.decrypt(siteData.footer)
+            ]);
+
+            mainHeader.innerHTML = header.replace('ee', '<span id="unlock-trigger">ee</span>');
+            mainSubheader.textContent = subheader;
+            footerText.innerHTML = footer;
+            document.getElementById('unlock-trigger').addEventListener('click', handleUnlockClick);
+            renderProjects();
+            renderSocialLinks();
+            applyAnimationEffect();
+            updateMatrixState();
+        }
+
+        async function renderProjects() {
+            projectsContainer.innerHTML = '';
+            const visitorUnlocked = sessionStorage.getItem('visitorUnlocked') === 'true';
+            
+            for (const [index, project] of siteData.projects.entries()) {
+                const isLockedForVisitor = siteData.projectLockingEnabled && project.locked && !visitorUnlocked;
+                
+                const projectCard = document.createElement('div');
+                projectCard.className = `project-card glass ${isLockedForVisitor ? 'is-locked' : ''}`;
+                projectCard.dataset.projectIndex = index;
+                projectCard.dataset.locked = isLockedForVisitor;
+
+                const [title, subtitle, description] = await Promise.all([
+                    cryptoUtils.decrypt(project.title),
+                    cryptoUtils.decrypt(project.subtitle),
+                    cryptoUtils.decrypt(project.description)
+                ]);
+
+                projectCard.innerHTML = `
+                    <div class="shimmer"></div>
+                    <div class="card-header">
+                        <div class="icon glass"><img src="images/${project.icon}" alt="${title} icon" draggable="false" onerror="this.src='https://placehold.co/50x50/1a1a2e/ffffff?text=?'; this.onerror=null;"></div>
+                        <div><h3 class="card-title">${title}</h3><p class="card-subtitle">${subtitle}</p></div>
+                    </div>
+                    <div class="card-content">
+                        <p class="card-description">${description}</p>
+                        <a href="${project.link}" class="btn-glass glass" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+                    </div>
+                `;
+                projectsContainer.appendChild(projectCard);
+            }
+        }
+        
+        async function renderSocialLinks() {
+            socialLinksContainer.innerHTML = '';
+            for(const link of siteData.socialLinks) {
+                const a = document.createElement('a');
+                a.href = link.url;
+                a.className = 'hover:text-white transition-colors duration-300';
+                a.textContent = await cryptoUtils.decrypt(link.name);
+                socialLinksContainer.appendChild(a);
+            }
+        }
+        
+        // --- EDITOR PANEL LOGIC ---
+        function updateEditorVisibility() {
+            const type = siteData.animationSettings.type;
+            rainbowSettingsEl.classList.toggle('hidden', type !== 'rainbow');
+            chaseSettingsEl.classList.toggle('hidden', type !== 'chase');
+        }
+
+        async function populateEditor() {
+            // Decrypt general data first
+            const [header, subheader, footer] = await Promise.all([
+                cryptoUtils.decrypt(siteData.header),
+                cryptoUtils.decrypt(siteData.subheader),
+                cryptoUtils.decrypt(siteData.footer)
+            ]);
+            headerInput.value = header;
+            subheaderInput.value = subheader;
+            footerInput.value = footer;
+            lockContentToggle.checked = siteData.projectLockingEnabled;
+            matrixBgToggle.checked = siteData.matrixBackgroundEnabled;
+
+            // Animations
+            const settings = siteData.animationSettings;
+            animationTypeSelect.value = settings.type;
+            rainbowSpeedInput.value = settings.rainbowSpeed;
+            rainbowMotionSelect.value = settings.rainbowMotion;
+            chaseSpeedInput.value = settings.chaseSpeed;
+            updateEditorVisibility();
+            
+            // Projects
+            projectEditorForms.innerHTML = '<h3>Projects</h3>';
+            for (const [index, project] of siteData.projects.entries()) {
+                const formWrapper = document.createElement('div');
+                formWrapper.className = 'draggable-form p-4 my-2 border border-transparent rounded-lg glass';
+                formWrapper.setAttribute('draggable', 'true');
+                formWrapper.dataset.index = index;
+                const lockIcon = project.locked ? '🔒' : '🔓';
+                const lockClass = project.locked ? 'bg-red-500/30' : 'bg-green-500/30';
+                
+                const [title, subtitle, description] = await Promise.all([
+                    cryptoUtils.decrypt(project.title),
+                    cryptoUtils.decrypt(project.subtitle),
+                    cryptoUtils.decrypt(project.description)
+                ]);
+
+                formWrapper.innerHTML = `
+                    <h3 class="flex justify-between items-center !mt-0 !pt-0 !border-none">
+                        <span>Project: ${title}</span>
+                        <div class="flex items-center gap-2">
+                            <button class="toggle-lock-btn editor-btn text-sm ${lockClass}" data-id="${project.id}" style="display: ${siteData.projectLockingEnabled ? 'block' : 'none'}">${lockIcon}</button>
+                            <button class="remove-project-btn editor-btn danger text-sm" data-id="${project.id}">Remove</button>
+                        </div>
+                    </h3>
+                    <label>Title</label><input type="text" value="${title}" data-index="${index}" data-field="title">
+                    <label>Subtitle</label><input type="text" value="${subtitle}" data-index="${index}" data-field="subtitle">
+                    <label>Description</label><textarea data-index="${index}" data-field="description" rows="4">${description}</textarea>
+                    <label>Icon Filename (e.g., dpk1.png)</label><input type="text" value="${project.icon}" data-index="${index}" data-field="icon">
+                    <label>GitHub Link</label><input type="text" value="${project.link}" data-index="${index}" data-field="link">`;
+                projectEditorForms.appendChild(formWrapper);
+            }
+            addDragListeners('.draggable-form', siteData.projects, populateEditor);
+
+            // Socials
+            const socialFormsContainer = document.createElement('div');
+            socialLinksEditor.querySelectorAll('.draggable-social-form').forEach(el => el.remove());
+            for (const [index, link] of siteData.socialLinks.entries()) {
+                const formWrapper = document.createElement('div');
+                formWrapper.className = 'draggable-social-form p-4 my-2 border border-transparent rounded-lg glass';
+                formWrapper.setAttribute('draggable', 'true');
+                formWrapper.dataset.index = index;
+                const name = await cryptoUtils.decrypt(link.name);
+                formWrapper.innerHTML = `
+                     <h4 class="flex justify-between items-center text-sm font-bold">
+                         <span>Link: ${name}</span>
+                         <button class="remove-social-btn editor-btn danger text-sm" data-id="${link.id}">Remove</button>
+                    </h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label>Name</label><input type="text" value="${name}" data-index="${index}" data-field="name" data-type="social"></div>
+                        <div><label>URL</label><input type="text" value="${link.url}" data-index="${index}" data-field="url" data-type="social"></div>
+                    </div>
+                `;
+                socialFormsContainer.appendChild(formWrapper);
+            }
+            socialLinksEditor.insertBefore(socialFormsContainer, document.getElementById('add-social-link-btn'));
+            addDragListeners('.draggable-social-form', siteData.socialLinks, populateEditor);
+        }
+
+        async function handleEditorInput(e) {
+            const target = e.target;
+            const settings = siteData.animationSettings;
+
+            // Handle general inputs
+            const { index, field, type } = target.dataset;
+            if (index && field) {
+                const targetArray = type === 'social' ? siteData.socialLinks : siteData.projects;
+                if (field === 'icon' || field === 'link' || field === 'url') {
+                    targetArray[parseInt(index)][field] = target.value;
+                } else {
+                    targetArray[parseInt(index)][field] = await cryptoUtils.encrypt(target.value);
+                }
+            } else if (target.id === 'header-input') siteData.header = await cryptoUtils.encrypt(target.value);
+            else if (target.id === 'subheader-input') siteData.subheader = await cryptoUtils.encrypt(target.value);
+            else if (target.id === 'footer-input') siteData.footer = await cryptoUtils.encrypt(target.value);
+            else if (target.id === 'lock-content-toggle') {
+                siteData.projectLockingEnabled = target.checked;
+                populateEditor(); 
+            } else if (target.id === 'matrix-bg-toggle') {
+                siteData.matrixBackgroundEnabled = target.checked;
+            }
+            // Handle animation inputs
+            else if (target.id === 'animation-type-select') settings.type = target.value;
+            else if (target.id === 'rainbow-speed-input') settings.rainbowSpeed = parseFloat(target.value) || 0;
+            else if (target.id === 'rainbow-motion-select') settings.rainbowMotion = target.value;
+            else if (target.id === 'chase-speed-input') settings.chaseSpeed = parseFloat(target.value) || 0;
+            
+            updateEditorVisibility();
+            renderAll();
+        }
+        
+        let dragStartIndex;
+        function dragStart() { dragStartIndex = +this.dataset.index; document.body.classList.add('is-dragging'); }
+        function dragOver(e) { e.preventDefault(); this.classList.add('dragging'); }
+        function dragLeave() { this.classList.remove('dragging'); }
+        function dragEnd() { 
+            document.querySelectorAll('.draggable-form, .draggable-social-form').forEach(item => item.classList.remove('dragging'));
+            document.body.classList.remove('is-dragging'); 
+        }
+        function addDragListeners(selector, dataArray, repopulateFn) {
+            const draggables = document.querySelectorAll(selector);
+            draggables.forEach(item => {
+                item.addEventListener('dragstart', dragStart);
+                item.addEventListener('dragover', dragOver);
+                item.addEventListener('dragleave', dragLeave);
+                item.addEventListener('drop', function() {
+                    const dragEndIndex = +this.dataset.index;
+                    const item = dataArray.splice(dragStartIndex, 1)[0];
+                    dataArray.splice(dragEndIndex, 0, item);
+                    renderAll();
+                    repopulateFn();
+                });
+                item.addEventListener('dragend', dragEnd);
+            });
+        }
+        let clickCount = 0;
+        function handleUnlockClick() {
+            clickCount++;
+            if (clickCount >= 10) {
+                document.getElementById('password-modal').classList.remove('hidden');
+                document.getElementById('password-input').focus();
+                clickCount = 0;
+            }
+        }
+        function unlockEditor() {
+            const passwordInput = document.getElementById('password-input');
+            if (passwordInput.value.toLowerCase() === 'dpk') {
+                document.getElementById('password-modal').classList.add('hidden');
+                passwordInput.value = '';
+                document.getElementById('password-error').classList.add('hidden');
+                populateEditor();
+                editorPanel.classList.remove('hidden');
+            } else {
+                document.getElementById('password-error').classList.remove('hidden');
+            }
+        }
+        document.getElementById('password-submit').addEventListener('click', unlockEditor);
+        document.getElementById('password-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') unlockEditor(); });
+
+        projectsContainer.addEventListener('click', async (e) => {
+            const card = e.target.closest('.project-card');
+            if (!card || e.target.closest('a')) return;
+            const hirePasswordModal = document.getElementById('hire-password-modal');
+            if (card.dataset.locked === 'true') {
+                hirePasswordModal.classList.remove('hidden');
+                document.getElementById('hire-password-input').focus();
+            } else {
+                const projectIndex = card.dataset.projectIndex;
+                const project = siteData.projects[projectIndex];
+                if (project) {
+                    const [title, subtitle, description] = await Promise.all([
+                        cryptoUtils.decrypt(project.title),
+                        cryptoUtils.decrypt(project.subtitle),
+                        cryptoUtils.decrypt(project.description)
+                    ]);
+                    modalIcon.innerHTML = `<img src="images/${project.icon}" alt="${title} icon" draggable="false" onerror="this.src='https://placehold.co/50x50/1a1a2e/ffffff?text=?'; this.onerror=null;">`;
+                    modalTitle.textContent = title;
+                    modalSubtitle.textContent = subtitle;
+                    modalDescription.textContent = description;
+                    modalLink.href = project.link;
+                    projectModal.classList.add('visible');
+                    applyAnimationEffect();
+                }
+            }
+        });
+        function checkHirePassword() {
+            const hirePasswordInput = document.getElementById('hire-password-input');
+            if (hirePasswordInput.value.toLowerCase() === 'hired') {
+                sessionStorage.setItem('visitorUnlocked', 'true');
+                document.getElementById('hire-password-modal').classList.add('hidden');
+                hirePasswordInput.value = '';
+                document.getElementById('hire-password-error').classList.add('hidden');
+                renderAll();
+            } else {
+                document.getElementById('hire-password-error').classList.remove('hidden');
+            }
+        }
+        document.getElementById('hire-password-submit').addEventListener('click', checkHirePassword);
+        document.getElementById('hire-password-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') checkHirePassword(); });
+        document.getElementById('hire-password-cancel').addEventListener('click', () => document.getElementById('hire-password-modal').classList.add('hidden'));
+        function closeProjectModal() { projectModal.classList.remove('visible'); }
+        projectModal.addEventListener('click', (e) => { if (e.target === projectModal) closeProjectModal(); });
+        modalCloseBtn.addEventListener('click', closeProjectModal);
+        
+        // --- DOWNLOAD LOGIC ---
+        function generateAndDownloadHtml() {
+            const bakedSiteData = JSON.stringify(siteData, null, 4);
+            const fullScriptContent = document.querySelector('script:not([src])').textContent;
+            const scriptWithBakedData = fullScriptContent.replace(
+                /let siteData = {[\s\S]*?};/, 
+                `let siteData = ${bakedSiteData};`
+            );
+            const bodyContent = `
+                ${document.getElementById('protection-overlay').outerHTML}
+                ${document.getElementById('matrix-canvas').outerHTML}
+                ${document.querySelector('.blob1').outerHTML}
+                ${document.querySelector('.blob2').outerHTML}
+                ${document.querySelector('.blob3').outerHTML}
+                ${document.getElementById('main-content').outerHTML}
+                ${document.getElementById('password-modal').outerHTML}
+                ${document.getElementById('hire-password-modal').outerHTML}
+                ${document.getElementById('editor-panel').outerHTML}
+                ${document.getElementById('exit-preview-btn').outerHTML}
+                ${document.getElementById('project-modal').outerHTML}
+            `;
+            const finalHtml = `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>${document.title}</title>
+            <script src="https://cdn.tailwindcss.com"><\/script>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+            <style id="main-styles">${document.getElementById('main-styles').textContent}<\/style>
+            <style id="editor-styles">${document.getElementById('editor-styles').textContent}<\/style>
+        </head>
+        <body class="p-4 sm:p-6 lg:p-8">
+            ${bodyContent}
+            <script>${scriptWithBakedData}<\/script>
+        </body>
+        </html>`;
+            const blob = new Blob([finalHtml], { type: 'text/html;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'index.html';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
+
+        // --- EVENT LISTENERS ---
+        editorPanel.addEventListener('input', handleEditorInput);
+        
+        editorPanel.addEventListener('click', async (e) => {
+            const target = e.target;
+            const btn = target.closest('button');
+            if (!btn) return;
+
+            if (btn.classList.contains('remove-project-btn')) {
+                const idToRemove = parseInt(btn.dataset.id, 10);
+                siteData.projects = siteData.projects.filter(p => p.id !== idToRemove);
+            } else if (btn.classList.contains('toggle-lock-btn')) {
+                const idToToggle = parseInt(btn.dataset.id, 10);
+                const project = siteData.projects.find(p => p.id === idToToggle);
+                if (project) project.locked = !project.locked;
+            } else if (btn.classList.contains('remove-social-btn')) {
+                const idToRemove = parseInt(btn.dataset.id, 10);
+                siteData.socialLinks = siteData.socialLinks.filter(l => l.id !== idToRemove);
+            } else if (btn.id === 'add-project-btn') {
+                const newId = siteData.projects.length > 0 ? Math.max(...siteData.projects.map(p => p.id)) + 1 : 1;
+                siteData.projects.push({
+                    id: newId, 
+                    title: await cryptoUtils.encrypt("New Project"), 
+                    subtitle: await cryptoUtils.encrypt("A brief description"), 
+                    description: await cryptoUtils.encrypt("Detailed description of the new project."), 
+                    icon: "new_icon.png", 
+                    link: "#", 
+                    locked: false
+                });
+            } else if (btn.id === 'add-social-link-btn') {
+                const newId = siteData.socialLinks.length > 0 ? Math.max(...siteData.socialLinks.map(l => l.id)) + 1 : 1;
+                siteData.socialLinks.push({
+                    id: newId, 
+                    name: await cryptoUtils.encrypt("New Link"), 
+                    url: "#"
+                });
+            } else if (btn.id === 'download-html-btn') {
+                generateAndDownloadHtml(); return;
+            } else if (btn.id === 'preview-btn') {
+                editorPanel.classList.add('hidden'); document.body.classList.add('in-preview-mode'); return;
+            } else if (btn.id === 'close-editor') {
+                 editorPanel.classList.add('hidden'); document.body.classList.remove('in-preview-mode'); return;
+            } else { return; }
+            renderAll(); populateEditor();
+        });
+
+        document.getElementById('exit-preview-btn').addEventListener('click', () => {
+             editorPanel.classList.remove('hidden');
+             document.body.classList.remove('in-preview-mode');
+        });
+        document.body.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        // --- INITIALIZATION ---
+        renderAll();
+    });
+    </script>
+</body>
+</html>
