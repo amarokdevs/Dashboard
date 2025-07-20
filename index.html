@@ -118,7 +118,8 @@
             animation: chase-border var(--chase-speed) linear infinite alternate;
         }
 
-        .card-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; width: 100%; }
+        /* FIX: Removed gap from CSS to control via Tailwind for responsiveness */
+        .card-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); width: 100%; }
         .project-card { 
             padding: 1.5rem; 
             display: flex; 
@@ -214,7 +215,7 @@
             max-width: 600px;
             max-height: 80vh;
             overflow-y: auto;
-            padding: 2rem;
+            /* FIX: Removed padding from CSS to control via Tailwind */
             position: relative;
             scrollbar-width: none;
             -ms-overflow-style: none;
@@ -276,15 +277,18 @@
 
     <div id="main-content" class="w-full max-w-6xl mx-auto z-10">
         
-        <header class="text-center my-12">
+        <!-- FIX: Added responsive margins -->
+        <header class="text-center my-8 sm:my-12">
             <h1 id="main-header" class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">Deepak Dev</h1>
             <p id="main-subheader" class="text-lg sm:text-xl text-gray-300 mt-2">Ethical Hacker & Security Researcher</p>
         </header>
 
-        <main id="projects-container" class="card-container">
+        <!-- FIX: Added responsive gap classes -->
+        <main id="projects-container" class="card-container gap-6 md:gap-8">
             </main>
 
-        <footer class="text-center my-16 text-gray-400">
+        <!-- FIX: Added responsive margins -->
+        <footer class="text-center my-12 sm:my-16 text-gray-400">
             <p id="footer-text">&copy; 2025 Deepak Dev. All rights reserved.</p>
             <div id="social-links-container" class="flex justify-center space-x-6 mt-4">
             </div>
@@ -417,9 +421,10 @@
                     <button id="add-social-link-btn" class="editor-btn mt-4">Add New Link</button>
                 </div>
 
-                <div class="flex justify-between items-center mt-6 border-t border-gray-700 pt-4">
-                    <button id="add-project-btn" class="editor-btn">Add New Project</button>
-                    <button id="download-html-btn" class="editor-btn success">Generate & Download HTML</button>
+                <!-- FIX: Added responsive classes for button layout -->
+                <div class="flex flex-col sm:flex-row gap-4 sm:justify-between items-center mt-6 border-t border-gray-700 pt-4">
+                    <button id="add-project-btn" class="editor-btn w-full sm:w-auto">Add New Project</button>
+                    <button id="download-html-btn" class="editor-btn success w-full sm:w-auto">Generate & Download HTML</button>
                 </div>
             </div>
         </div>
@@ -428,7 +433,8 @@
     <button id="exit-preview-btn" class="editor-btn glass liquid-effect-active">Re-open Editor</button>
 
     <div id="project-modal">
-        <div class="project-modal-content glass">
+        <!-- FIX: Added responsive padding classes -->
+        <div class="project-modal-content glass p-6 sm:p-8">
              <div class="shimmer"></div>
              <div class="card-header items-center">
                  <div id="modal-icon" class="icon glass"></div>
@@ -447,7 +453,6 @@
 
     <script>
     // --- DEV TOOLS PROTECTION (IMMEDIATE EXECUTION) ---
-    // This script runs before DOMContentLoaded to be as fast as possible.
     (function() {
         const devToolsProtection = (() => {
             let blocked = false;
@@ -457,8 +462,6 @@
                 if (blocked) return;
                 
                 const startTime = new Date().getTime();
-                // The debugger statement is a key part of the detection.
-                // If dev tools are open, execution will pause here, causing a time difference.
                 debugger;
                 const endTime = new Date().getTime();
 
@@ -470,19 +473,15 @@
             function blockAccess() {
                 if (blocked) return;
                 blocked = true;
-                // Immediately replace the entire page content. This is faster and more destructive
-                // to the DOM than trying to hide individual elements.
                 document.documentElement.innerHTML = `
                     <body style="display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center; color: white; flex-direction: column; background-color: #0D1117; margin: 0;">
                         <h1 style="font-size: 2rem; font-weight: bold; font-family: sans-serif;">Access Denied</h1>
                         <p style="font-size: 1rem; font-family: sans-serif;">Code inspection is not permitted.</p>
                     </body>
                 `;
-                // Enter an infinite loop to freeze the dev tools console, making it difficult to use.
                 while (true) {}
             }
 
-            // Use requestAnimationFrame for a more persistent and performant check loop.
             function loop() {
                 check();
                 window.requestAnimationFrame(loop);
@@ -490,12 +489,9 @@
 
             return {
                 start: () => {
-                    // Don't wait for DOMContentLoaded. Start the protection immediately.
                     try {
                        loop();
-                    } catch(e) {
-                       // Ignore errors that might occur during the loop
-                    }
+                    } catch(e) {}
                 }
             };
         })();
@@ -574,9 +570,8 @@
             customBgFilename: 'bg.png',
             smallCardLiquidEffect: true,
             modalLiquidEffect: true,
-            // FIX: Obfuscated passwords
-            adminPass: 'a3Bk', // Base64 of 'kpd' (dpk reversed)
-            hirePass: 'ZGVyaWg=', // Base64 of 'derih' (hired reversed)
+            adminPass: 'a3Bk',
+            hirePass: 'ZGVyaWg=',
             animationSettings: {
                 type: 'rainbow',
                 rainbowSpeed: 5,
@@ -868,7 +863,6 @@
             }
         }
         
-        // FIX: De-obfuscate password before checking
         const decodePass = (pass) => atob(pass).split('').reverse().join('');
 
         function unlockEditor() {
@@ -1022,15 +1016,13 @@
              document.body.classList.remove('in-preview-mode');
         });
 
-        // FIX: Enhanced copy and context menu protection
         ['contextmenu', 'copy', 'cut'].forEach(eventName => {
             document.body.addEventListener(eventName, (e) => {
-                // Allow actions inside the editor panel's inputs and textareas
                 const editor = document.getElementById('editor-panel');
                 if (editor && !editor.classList.contains('hidden')) {
                     const target = e.target;
                     if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-                        return; // Allow action
+                        return;
                     }
                 }
                 e.preventDefault();
