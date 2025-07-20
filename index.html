@@ -956,21 +956,18 @@
                 `let siteData = ${bakedSiteData};`
             );
 
-            const editorPanelClone = document.getElementById('editor-panel').cloneNode(true);
-            editorPanelClone.classList.add('hidden');
+            // FIX: More robustly clone the body and prepare it for download
+            const bodyClone = document.body.cloneNode(true);
+            const scriptToRemove = bodyClone.querySelector('script:not([src])');
+            if (scriptToRemove) {
+                scriptToRemove.remove();
+            }
+            const editorPanelInClone = bodyClone.querySelector('#editor-panel');
+            if(editorPanelInClone) {
+                editorPanelInClone.classList.add('hidden');
+            }
+            const bodyContent = bodyClone.innerHTML;
 
-            const bodyContent = `
-                ${document.getElementById('matrix-canvas').outerHTML}
-                ${document.querySelector('.blob1').outerHTML}
-                ${document.querySelector('.blob2').outerHTML}
-                ${document.querySelector('.blob3').outerHTML}
-                ${document.getElementById('main-content').outerHTML}
-                ${document.getElementById('password-modal').outerHTML}
-                ${document.getElementById('hire-password-modal').outerHTML}
-                ${editorPanelClone.outerHTML}
-                ${document.getElementById('exit-preview-btn').outerHTML}
-                ${document.getElementById('project-modal').outerHTML}
-            `;
             const finalHtml = `<!DOCTYPE html>
         <html lang="en">
         <head>
