@@ -27,6 +27,8 @@
             color: #E6E6E6;
             display: flex;
             flex-direction: column;
+            /* FIX: Ensure content is centered horizontally */
+            align-items: center;
             min-height: 100vh;
             background-attachment: fixed;
             scrollbar-width: none;
@@ -225,7 +227,6 @@
             display: none;
         }
 
-        /* NEW: Mobile View Blocker */
         #mobile-blocker {
             display: none;
             position: fixed;
@@ -240,11 +241,9 @@
         }
 
         @media (max-width: 768px) {
-            /* On mobile, hide everything except the blocker */
             #main-content, .blob, #matrix-canvas, #editor-panel, #password-modal, #hire-password-modal, #project-modal, #exit-preview-btn {
                 display: none !important;
             }
-            /* Show the blocker */
             #mobile-blocker {
                 display: flex;
             }
@@ -292,11 +291,10 @@
 </head>
 <body class="p-4 sm:p-6 lg:p-8">
 
-    <!-- NEW: Mobile Blocker Message -->
     <div id="mobile-blocker">
         <div>
-            <h2 class="text-2xl font-bold mb-4">Desktop View Recommended</h2>
-            <p>This experience is optimized for desktop. Please switch to a larger screen to view the portfolio.</p>
+            <!-- FIX: Updated mobile blocker text -->
+            <p class="text-lg">This experience is optimized for desktop. Please switch to a larger screen to view the portfolio.</p>
         </div>
     </div>
 
@@ -1060,4 +1058,4 @@
     });
     </script>
 </body>
-</ht
+</html>
