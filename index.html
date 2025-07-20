@@ -118,7 +118,6 @@
             animation: chase-border var(--chase-speed) linear infinite alternate;
         }
 
-        /* FIX: Removed gap from CSS to control via Tailwind for responsiveness */
         .card-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); width: 100%; }
         .project-card { 
             padding: 1.5rem; 
@@ -215,7 +214,6 @@
             max-width: 600px;
             max-height: 80vh;
             overflow-y: auto;
-            /* FIX: Removed padding from CSS to control via Tailwind */
             position: relative;
             scrollbar-width: none;
             -ms-overflow-style: none;
@@ -225,6 +223,31 @@
         }
         .project-modal-content::-webkit-scrollbar {
             display: none;
+        }
+
+        /* NEW: Mobile View Blocker */
+        #mobile-blocker {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: #0D1117;
+            color: #E6E6E6;
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            /* On mobile, hide everything except the blocker */
+            #main-content, .blob, #matrix-canvas, #editor-panel, #password-modal, #hire-password-modal, #project-modal, #exit-preview-btn {
+                display: none !important;
+            }
+            /* Show the blocker */
+            #mobile-blocker {
+                display: flex;
+            }
         }
     </style>
     <style id="editor-styles">
@@ -269,6 +292,14 @@
 </head>
 <body class="p-4 sm:p-6 lg:p-8">
 
+    <!-- NEW: Mobile Blocker Message -->
+    <div id="mobile-blocker">
+        <div>
+            <h2 class="text-2xl font-bold mb-4">Desktop View Recommended</h2>
+            <p>This experience is optimized for desktop. Please switch to a larger screen to view the portfolio.</p>
+        </div>
+    </div>
+
     <canvas id="matrix-canvas"></canvas>
 
     <div class="blob blob1"></div>
@@ -277,17 +308,14 @@
 
     <div id="main-content" class="w-full max-w-6xl mx-auto z-10">
         
-        <!-- FIX: Added responsive margins -->
         <header class="text-center my-8 sm:my-12">
             <h1 id="main-header" class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">Deepak Dev</h1>
             <p id="main-subheader" class="text-lg sm:text-xl text-gray-300 mt-2">Ethical Hacker & Security Researcher</p>
         </header>
 
-        <!-- FIX: Added responsive gap classes -->
         <main id="projects-container" class="card-container gap-6 md:gap-8">
             </main>
 
-        <!-- FIX: Added responsive margins -->
         <footer class="text-center my-12 sm:my-16 text-gray-400">
             <p id="footer-text">&copy; 2025 Deepak Dev. All rights reserved.</p>
             <div id="social-links-container" class="flex justify-center space-x-6 mt-4">
@@ -421,7 +449,6 @@
                     <button id="add-social-link-btn" class="editor-btn mt-4">Add New Link</button>
                 </div>
 
-                <!-- FIX: Added responsive classes for button layout -->
                 <div class="flex flex-col sm:flex-row gap-4 sm:justify-between items-center mt-6 border-t border-gray-700 pt-4">
                     <button id="add-project-btn" class="editor-btn w-full sm:w-auto">Add New Project</button>
                     <button id="download-html-btn" class="editor-btn success w-full sm:w-auto">Generate & Download HTML</button>
@@ -433,7 +460,6 @@
     <button id="exit-preview-btn" class="editor-btn glass liquid-effect-active">Re-open Editor</button>
 
     <div id="project-modal">
-        <!-- FIX: Added responsive padding classes -->
         <div class="project-modal-content glass p-6 sm:p-8">
              <div class="shimmer"></div>
              <div class="card-header items-center">
@@ -1034,4 +1060,4 @@
     });
     </script>
 </body>
-</html>
+</ht
