@@ -31,6 +31,7 @@
             background-attachment: fixed;
             scrollbar-width: none;
             -ms-overflow-style: none;
+            transition: background-image 0.5s ease-in-out;
         }
         body::-webkit-scrollbar {
             display: none;
@@ -65,15 +66,18 @@
 
         .glass {
             position: relative;
+            border-radius: 1.5rem;
+            overflow: hidden;
+        }
+
+        .liquid-effect-active {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(8px) saturate(150%);
             -webkit-backdrop-filter: blur(8px) saturate(150%);
-            border-radius: 1.5rem;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-            overflow: hidden;
         }
         
-        .glass::after {
+        .glass.liquid-effect-active::after {
             content: '';
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -82,7 +86,6 @@
             pointer-events: none;
         }
         
-        /* --- BORDER ANIMATION DEFINITIONS --- */
         @keyframes rotate-border {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
@@ -92,7 +95,6 @@
             100% { background-position: 100% 50%; }
         }
 
-        /* --- BORDER ANIMATION CLASSES --- */
         .animation-rainbow::before, .animation-chase::before {
             content: '';
             position: absolute;
@@ -104,7 +106,7 @@
             -webkit-mask-composite: xor;
             mask-composite: exclude;
             z-index: 1;
-            pointer-events: none; /* Let clicks pass through the animation layer */
+            pointer-events: none;
         }
         .animation-rainbow::before {
             background: conic-gradient(from 0deg, #8983F7, #A3A8F8, #C3D8F7, #E3E2F5, #F7D8F5, #F5BBE8, #E395D8, #C368B8, #A34898, #8983F7);
@@ -113,7 +115,7 @@
         .animation-chase::before {
             background: linear-gradient(90deg, transparent, #A3A8F8, transparent);
             background-size: 300% 100%;
-            animation: chase-border var(--chase-speed) linear infinite alternate; /* Changed to loop back and forth */
+            animation: chase-border var(--chase-speed) linear infinite alternate;
         }
 
         .card-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; width: 100%; }
@@ -199,6 +201,9 @@
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s ease, visibility 0.3s ease;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
         }
         #project-modal.visible {
             opacity: 1;
@@ -213,9 +218,6 @@
             position: relative;
             scrollbar-width: none;
             -ms-overflow-style: none;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
         }
         .project-modal-content:hover .shimmer {
             animation: shimmer 1.5s ease-in-out;
@@ -238,11 +240,11 @@
             max-height: 90vh; 
             overflow-y: auto; 
             max-width: 800px;
+            scrollbar-width: none; /* Firefox */
             -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
         }
-        #editor-panel .editor-modal::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, and Opera */
+        #editor-panel .editor-modal::-webkit-scrollbar { 
+            display: none; /* Chrome, Safari, Opera */
         }
         #password-modal .editor-modal, #hire-password-modal .editor-modal { max-width: 400px; overflow: hidden; }
         .modal-content-wrapper { position: relative; z-index: 2; }
@@ -262,18 +264,10 @@
         .dragging { opacity: 0.5; background: rgba(137, 131, 247, 0.3) !important; }
         #exit-preview-btn { display: none; position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1000; }
         body.in-preview-mode #exit-preview-btn { display: block; }
-        #protection-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #000; color: #0F0;
-            display: none; align-items: center; justify-content: center;
-            font-family: 'Courier New', Courier, monospace; font-size: 2rem;
-            z-index: 10000; text-align: center;
-        }
     </style>
 </head>
 <body class="p-4 sm:p-6 lg:p-8">
 
-    <div id="protection-overlay">ops ! you are to smart</div>
     <canvas id="matrix-canvas"></canvas>
 
     <div class="blob blob1"></div>
@@ -283,22 +277,22 @@
     <div id="main-content" class="w-full max-w-6xl mx-auto z-10">
         
         <header class="text-center my-12">
-            <h1 id="main-header" class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight"></h1>
-            <p id="main-subheader" class="text-lg sm:text-xl text-gray-300 mt-2"></p>
+            <h1 id="main-header" class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">Deepak Dev</h1>
+            <p id="main-subheader" class="text-lg sm:text-xl text-gray-300 mt-2">Ethical Hacker & Security Researcher</p>
         </header>
 
         <main id="projects-container" class="card-container">
             </main>
 
         <footer class="text-center my-16 text-gray-400">
-            <p id="footer-text"></p>
+            <p id="footer-text">&copy; 2025 Deepak Dev. All rights reserved.</p>
             <div id="social-links-container" class="flex justify-center space-x-6 mt-4">
-                </div>
+            </div>
         </footer>
     </div>
     
     <div id="password-modal" class="editor-overlay hidden">
-        <div class="glass editor-modal">
+        <div class="glass editor-modal liquid-effect-active">
             <div class="modal-content-wrapper">
                 <h2>Enter Password</h2>
                 <input type="password" id="password-input" placeholder="Password">
@@ -309,7 +303,7 @@
     </div>
 
     <div id="hire-password-modal" class="editor-overlay hidden">
-        <div class="glass editor-modal">
+        <div class="glass editor-modal liquid-effect-active">
             <div class="modal-content-wrapper">
                 <h2>Enter Access Code</h2>
                 <input type="password" id="hire-password-input" placeholder="Code">
@@ -323,7 +317,7 @@
     </div>
 
     <div id="editor-panel" class="editor-overlay hidden">
-        <div class="glass editor-modal">
+        <div class="glass editor-modal liquid-effect-active">
             <div class="modal-content-wrapper">
                 <div class="flex justify-between items-center flex-wrap gap-2 mb-5">
                     <h2>Live Content Editor</h2>
@@ -333,7 +327,7 @@
                     </div>
                 </div>
                 
-                <div id="instruction-box" class="glass p-4 my-4">
+                <div id="instruction-box" class="glass p-4 my-4 liquid-effect-active">
                     <h3 class="mt-0 pt-0 border-none font-bold">Instructions</h3>
                     <p class="text-sm">1. Edit any field below to see live updates on the page.</p>
                     <p class="text-sm">2. To customize animations, choose an effect and its settings will appear.</p>
@@ -348,8 +342,30 @@
                 <input type="text" id="subheader-input">
                 <label for="footer-input">Footer Text</label>
                 <input type="text" id="footer-input">
+                
+                <div class="flex items-center gap-3 mt-4">
+                    <input type="checkbox" id="custom-bg-toggle" class="h-5 w-5 accent-blue-500">
+                    <label for="custom-bg-toggle" class="!mt-0">Enable Custom Background Image</label>
+                </div>
+                <div id="custom-bg-settings" class="hidden mt-2">
+                    <label>Background Filename (e.g., bg.png)</label>
+                    <input type="text" id="custom-bg-filename-input">
+                </div>
 
-                <div class="mt-4 p-4 glass">
+                <div class="mt-4 p-4 glass liquid-effect-active">
+                    <h4 class="font-bold text-lg mb-2">Liquid Effect Controls</h4>
+                    <div class="flex items-center gap-3 mt-2">
+                        <input type="checkbox" id="small-card-liquid-toggle" class="h-5 w-5 accent-purple-500">
+                        <label for="small-card-liquid-toggle" class="!mt-0">Enable on Project Cards</label>
+                    </div>
+                    <div class="flex items-center gap-3 mt-2">
+                        <input type="checkbox" id="modal-liquid-toggle" class="h-5 w-5 accent-purple-500">
+                        <label for="modal-liquid-toggle" class="!mt-0">Enable on Pop-up Modal</label>
+                    </div>
+                </div>
+
+
+                <div class="mt-4 p-4 glass liquid-effect-active">
                     <h4 class="font-bold text-lg mb-2">Animation Controls</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -386,6 +402,10 @@
                         <input type="checkbox" id="matrix-bg-toggle" class="h-5 w-5 accent-green-500">
                         <label for="matrix-bg-toggle" class="!mt-0">Enable Matrix Background</label>
                     </div>
+                    <div id="matrix-speed-settings" class="hidden mt-2">
+                        <label>Matrix Speed (ms interval, lower is faster)</label>
+                        <input type="number" id="matrix-speed-input" step="1" min="10">
+                    </div>
                 </div>
 
                 <div id="project-editor-forms">
@@ -405,7 +425,7 @@
         </div>
     </div>
     
-    <button id="exit-preview-btn" class="editor-btn glass">Re-open Editor</button>
+    <button id="exit-preview-btn" class="editor-btn glass liquid-effect-active">Re-open Editor</button>
 
     <div id="project-modal">
         <div class="project-modal-content glass">
@@ -426,108 +446,43 @@
     </div>
 
     <script>
-    // --- SECURITY FEATURES ---
-    const protection = (() => {
-        const overlay = document.getElementById('protection-overlay');
-        function showOverlay() {
-            overlay.style.display = 'flex';
-            // Stop everything
-            while(true) {
-                debugger;
-            }
-        }
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DEV TOOLS PROTECTION ---
+        // This script detects if the user opens developer tools and blocks the page.
+        // It's a deterrent, not true encryption, as client-side code must be readable by the browser.
+        const devToolsProtection = (() => {
+            let intervalId = null;
+            const threshold = 160;
 
-        // DevTools detection
-        let devtools = false;
-        const detector = document.createElement('div');
-        Object.defineProperty(detector, 'id', {
-            get: function() {
-                devtools = true;
-                showOverlay();
-                return '';
+            function check() {
+                const startTime = new Date().getTime();
+                debugger; // This line will pause execution only if dev tools are open
+                const endTime = new Date().getTime();
+                if (endTime - startTime > threshold) {
+                    blockAccess();
+                }
             }
-        });
-        setInterval(() => {
-            if (window.devtools && window.devtools.isOpen) {
-                 showOverlay();
+
+            function blockAccess() {
+                if (intervalId) {
+                    clearInterval(intervalId);
+                }
+                document.body.innerHTML = `
+                    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center; color: white; flex-direction: column; background-color: #0D1117;">
+                        <h1 style="font-size: 2rem; font-weight: bold;">Access Denied</h1>
+                        <p style="font-size: 1rem;">Code inspection is not permitted.</p>
+                    </div>
+                `;
             }
-            const before = new Date().getTime();
-            debugger;
-            const after = new Date().getTime();
-            if (after - before > 100) {
-                showOverlay();
-            }
-            console.log(detector);
-            console.clear();
-        }, 1000);
-    })();
 
-    const cryptoUtils = (() => {
-        const keyMaterial = 'a-very-secret-key-that-is-super-secure'; // In a real app, this would be handled more securely
-        let cryptoKey;
+            return {
+                start: () => {
+                    intervalId = setInterval(check, 1000);
+                }
+            };
+        })();
 
-        async function getKey() {
-            if (cryptoKey) return cryptoKey;
-            const enc = new TextEncoder();
-            const importedKey = await window.crypto.subtle.importKey(
-                'raw',
-                enc.encode(keyMaterial),
-                { name: 'PBKDF2' },
-                false,
-                ['deriveKey']
-            );
-            cryptoKey = await window.crypto.subtle.deriveKey(
-                {
-                    name: 'PBKDF2',
-                    salt: enc.encode('some-salt'),
-                    iterations: 100000,
-                    hash: 'SHA-256'
-                },
-                importedKey,
-                { name: 'AES-GCM', length: 256 },
-                true,
-                ['encrypt', 'decrypt']
-            );
-            return cryptoKey;
-        }
 
-        async function encrypt(text) {
-            const key = await getKey();
-            const iv = window.crypto.getRandomValues(new Uint8Array(12));
-            const encodedText = new TextEncoder().encode(text);
-            const encryptedData = await window.crypto.subtle.encrypt(
-                { name: 'AES-GCM', iv: iv },
-                key,
-                encodedText
-            );
-            const buffer = new Uint8Array(iv.length + encryptedData.byteLength);
-            buffer.set(iv, 0);
-            buffer.set(new Uint8Array(encryptedData), iv.length);
-            return Array.from(buffer).map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        async function decrypt(hex) {
-            try {
-                const key = await getKey();
-                const encryptedBytes = new Uint8Array(hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-                const iv = encryptedBytes.slice(0, 12);
-                const data = encryptedBytes.slice(12);
-                const decryptedData = await window.crypto.subtle.decrypt(
-                    { name: 'AES-GCM', iv: iv },
-                    key,
-                    data
-                );
-                return new TextDecoder().decode(decryptedData);
-            } catch (e) {
-                console.error("Decryption failed:", e);
-                return ""; // Return empty string on failure
-            }
-        }
-        
-        return { encrypt, decrypt };
-    })();
-    
-    document.addEventListener('DOMContentLoaded', async () => {
         // --- MATRIX EFFECT ---
         const matrixEffect = (() => {
             let canvas, ctx, columns, drops, animationId;
@@ -567,11 +522,12 @@
             }
 
             return {
-                start: () => {
+                start: (speed = 33) => {
                     init();
                     if (canvas) {
                         canvas.style.display = 'block';
-                        if (!animationId) animationId = setInterval(draw, 33);
+                        if (animationId) clearInterval(animationId);
+                        animationId = setInterval(draw, speed);
                     }
                 },
                 stop: () => {
@@ -584,23 +540,33 @@
             };
         })();
 
-        // --- DATA MODEL (ENCRYPTED) ---
+        // --- DATA MODEL ---
         let siteData = {
-            "header": "5a2718c037308740b3b497930d1e9c2a2d46d36751fa402a8235158a4b71f227b185",
-            "subheader": "981604a322168545b4b5969e0b10922a2c43c8625ef8432d8630139e4b7ef822b085b4384f2563c043",
-            "footer": "b31e10c220118646b6a39091001e9a252b40c56359fe40248532158f4c7af320b685b4384f2563c043b5838e307308918e4a",
-            "projectLockingEnabled": false,
-            "matrixBackgroundEnabled": false,
-            "animationSettings": { "type": "rainbow", "rainbowSpeed": 5, "rainbowMotion": "linear", "chaseSpeed": 3 },
-            "projects": [
-                { "id": 1, "title": "8a1503a625108242b5a69295081998272944c2655dfb462e8031128d4d76f022b783b3", "subtitle": "9b1317a523158346b3b291930f1d99202842c96658fd422b813717884a70f626b4", "description": "8f1a11c526128341b2a296920c189b2d2942d3605af9402c8232128e4a71f323b082b4384f2563c043b5838e307308918e4a8f1a11c526128341b2a296920c189b2d2942d3605af9402c8232128e4a71f323b082b4384f2563c043b5838e307308918e4a8f1a11c526128341b2a296920c189b2d2942d3605af9402c8232128e4a71f323b082b4384f2563c043b5838e307308918e4a", "icon": "dpk1.png", "link": "#", "locked": false },
-                { "id": 2, "title": "9c1a11c526128341b2a296920c189b2d2942d3605af9402c8232128e4a71f323b0", "subtitle": "8d1503a625108242b5a69295081998272944c2655dfb462e8031128d4d76f022b7", "description": "a01e10c220118646b6a39091001e9a252b40c56359fe40248532158f4c7af320b685b4384f2563c043b5838e307308918e4a8f1a11c526128341b2a296920c189b2d2942d3605af9402c8232128e4a71f323b0", "icon": "dpk2.png", "link": "#", "locked": false },
-                { "id": 3, "title": "8f1a11c526128341b2a296920c189b2d2942d3605af9402c8232128e4a71f323b0", "subtitle": "9c1a11c526128341b2a296920c189b2d2942d3605af9402c8232128e4a71f323b0", "description": "a01e10c220118646b6a39091001e9a252b40c56359fe40248532158f4c7af320b685b4384f2563c043b5838e307308918e4a8f1a11c526128341b2a296920c189b2d2942d3605af9402c8232128e4a71f323b08f1a11c526128341b2a296920c189b2d2942d3605af9402c8232128e4a71f323b0", "icon": "dpk3.png", "link": "#", "locked": true }
+            header: "Deepak Dev",
+            subheader: "Ethical Hacker & Security Researcher",
+            footer: "&copy; 2025 Deepak Dev. All rights reserved.",
+            projectLockingEnabled: false,
+            matrixBackgroundEnabled: false,
+            matrixSpeed: 33,
+            customBgEnabled: false,
+            customBgFilename: 'bg.png',
+            smallCardLiquidEffect: true,
+            modalLiquidEffect: true,
+            animationSettings: {
+                type: 'rainbow',
+                rainbowSpeed: 5,
+                rainbowMotion: 'linear',
+                chaseSpeed: 3
+            },
+            projects: [
+                { id: 1, title: "Project Cyberscythe", subtitle: "Network Security Tool", description: "An advanced network scanning and vulnerability assessment tool. Built with Python and Scapy.", icon: "dpk1.png", link: "#", locked: false },
+                { id: 2, title: "PhishGuard", subtitle: "Browser Extension", description: "A browser extension that uses machine learning to detect and block phishing websites in real-time.", icon: "dpk2.png", link: "#", locked: false },
+                { id: 3, title: "KeyLoggerX", subtitle: "Educational Research", description: "An educational keylogger for Windows to demonstrate endpoint security risks.", icon: "dpk3.png", link: "#", locked: true }
             ],
-            "socialLinks": [
-                { "id": 1, "name": "9a1e10c220118646b6a39091001e9a252b40c56359fe40248532158f4c7af320", "url": "#" },
-                { "id": 2, "name": "8b1a11c526128341b2a296920c189b2d2942d3605af9402c8232128e4a71f323", "url": "#" },
-                { "id": 3, "name": "9c1a11c526128341b2a296920c189b2d2942d3605af9402c8232128e4a71f323", "url": "#" }
+            socialLinks: [
+                { id: 1, name: "GitHub", url: "#" },
+                { id: 2, name: "LinkedIn", url: "#" },
+                { id: 3, name: "Twitter / X", url: "#" }
             ]
         };
 
@@ -625,16 +591,19 @@
         const modalDescription = document.getElementById('modal-description');
         const modalLink = document.getElementById('modal-link');
         const modalCloseBtn = document.getElementById('modal-close-btn');
-
-        // Animation Controls
         const animationTypeSelect = document.getElementById('animation-type-select');
         const rainbowSettingsEl = document.getElementById('rainbow-settings');
         const rainbowSpeedInput = document.getElementById('rainbow-speed-input');
         const rainbowMotionSelect = document.getElementById('rainbow-motion-select');
         const chaseSettingsEl = document.getElementById('chase-settings');
         const chaseSpeedInput = document.getElementById('chase-speed-input');
+        const matrixSpeedInput = document.getElementById('matrix-speed-input');
+        const customBgToggle = document.getElementById('custom-bg-toggle');
+        const customBgFilenameInput = document.getElementById('custom-bg-filename-input');
+        const smallCardLiquidToggle = document.getElementById('small-card-liquid-toggle');
+        const modalLiquidToggle = document.getElementById('modal-liquid-toggle');
 
-        // --- ANIMATION LOGIC ---
+        // --- RENDER & STYLE FUNCTIONS ---
         function applyAnimationEffect() {
             const root = document.documentElement;
             const settings = siteData.animationSettings;
@@ -643,7 +612,7 @@
             root.style.setProperty('--rainbow-motion', settings.rainbowMotion);
             root.style.setProperty('--chase-speed', settings.chaseSpeed + 's');
 
-            const animatedElements = document.querySelectorAll('#main-content .glass, #project-modal .glass, #hire-password-modal .glass, #password-modal .glass');
+            const animatedElements = document.querySelectorAll('#main-content .glass, #project-modal .glass, #hire-password-modal .glass, #password-modal .glass, #exit-preview-btn.glass');
             const animationClass = `animation-${settings.type}`;
 
             animatedElements.forEach(el => {
@@ -654,190 +623,178 @@
             });
         }
         
+        function applyBackgroundStyles() {
+            if (siteData.customBgEnabled && siteData.customBgFilename) {
+                document.body.style.backgroundImage = `url('images/${siteData.customBgFilename}')`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center center';
+            } else {
+                document.body.style.backgroundImage = 'radial-gradient(circle at 1% 1%, #2c3e50 0%, transparent 50%), radial-gradient(circle at 99% 99%, #1c2833 0%, transparent 50%)';
+                document.body.style.backgroundSize = 'auto';
+                document.body.style.backgroundPosition = '0% 0%';
+            }
+        }
+
         function updateMatrixState() {
             if (siteData.matrixBackgroundEnabled) {
-                matrixEffect.start();
+                matrixEffect.start(siteData.matrixSpeed);
             } else {
                 matrixEffect.stop();
             }
         }
 
-        // --- RENDER FUNCTIONS (WITH DECRYPTION) ---
-        async function renderAll() {
-            const [header, subheader, footer] = await Promise.all([
-                cryptoUtils.decrypt(siteData.header),
-                cryptoUtils.decrypt(siteData.subheader),
-                cryptoUtils.decrypt(siteData.footer)
-            ]);
-
-            mainHeader.innerHTML = header.replace('ee', '<span id="unlock-trigger">ee</span>');
-            mainSubheader.textContent = subheader;
-            footerText.innerHTML = footer;
-            
+        function renderAll() {
+            mainHeader.innerHTML = siteData.header.replace('ee', '<span id="unlock-trigger">ee</span>');
+            mainSubheader.textContent = siteData.subheader;
+            footerText.innerHTML = siteData.footer;
             const unlockTrigger = document.getElementById('unlock-trigger');
-            if(unlockTrigger) {
+            if (unlockTrigger) {
                 unlockTrigger.addEventListener('click', handleUnlockClick);
             }
-
             renderProjects();
             renderSocialLinks();
             applyAnimationEffect();
+            applyBackgroundStyles();
             updateMatrixState();
         }
 
-        async function renderProjects() {
+        function renderProjects() {
             projectsContainer.innerHTML = '';
             const visitorUnlocked = sessionStorage.getItem('visitorUnlocked') === 'true';
+            const cardLiquidClass = siteData.smallCardLiquidEffect ? 'liquid-effect-active' : '';
             
-            for (const [index, project] of siteData.projects.entries()) {
+            siteData.projects.forEach((project, index) => {
                 const isLockedForVisitor = siteData.projectLockingEnabled && project.locked && !visitorUnlocked;
                 
                 const projectCard = document.createElement('div');
-                projectCard.className = `project-card glass ${isLockedForVisitor ? 'is-locked' : ''}`;
+                projectCard.className = `project-card glass ${cardLiquidClass} ${isLockedForVisitor ? 'is-locked' : ''}`;
                 projectCard.dataset.projectIndex = index;
                 projectCard.dataset.locked = isLockedForVisitor;
-
-                const [title, subtitle, description] = await Promise.all([
-                    cryptoUtils.decrypt(project.title),
-                    cryptoUtils.decrypt(project.subtitle),
-                    cryptoUtils.decrypt(project.description)
-                ]);
 
                 projectCard.innerHTML = `
                     <div class="shimmer"></div>
                     <div class="card-header">
-                        <div class="icon glass"><img src="images/${project.icon}" alt="${title} icon" draggable="false" onerror="this.src='https://placehold.co/50x50/1a1a2e/ffffff?text=?'; this.onerror=null;"></div>
-                        <div><h3 class="card-title">${title}</h3><p class="card-subtitle">${subtitle}</p></div>
+                        <div class="icon glass ${cardLiquidClass}"><img src="images/${project.icon}" alt="${project.title} icon" draggable="false" onerror="this.src='https://placehold.co/50x50/1a1a2e/ffffff?text=?'; this.onerror=null;"></div>
+                        <div><h3 class="card-title">${project.title}</h3><p class="card-subtitle">${project.subtitle}</p></div>
                     </div>
                     <div class="card-content">
-                        <p class="card-description">${description}</p>
-                        <a href="${project.link}" class="btn-glass glass" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+                        <p class="card-description">${project.description}</p>
+                        <a href="${project.link}" class="btn-glass glass ${cardLiquidClass}" target="_blank" rel="noopener noreferrer">View on GitHub</a>
                     </div>
                 `;
                 projectsContainer.appendChild(projectCard);
-            }
+            });
         }
         
-        async function renderSocialLinks() {
+        function renderSocialLinks() {
             socialLinksContainer.innerHTML = '';
-            for(const link of siteData.socialLinks) {
+            siteData.socialLinks.forEach(link => {
                 const a = document.createElement('a');
                 a.href = link.url;
                 a.className = 'hover:text-white transition-colors duration-300';
-                a.textContent = await cryptoUtils.decrypt(link.name);
+                a.textContent = link.name;
                 socialLinksContainer.appendChild(a);
-            }
+            });
         }
         
-        // --- EDITOR PANEL LOGIC ---
         function updateEditorVisibility() {
             const type = siteData.animationSettings.type;
             rainbowSettingsEl.classList.toggle('hidden', type !== 'rainbow');
             chaseSettingsEl.classList.toggle('hidden', type !== 'chase');
+            document.getElementById('matrix-speed-settings').classList.toggle('hidden', !siteData.matrixBackgroundEnabled);
+            document.getElementById('custom-bg-settings').classList.toggle('hidden', !siteData.customBgEnabled);
         }
 
-        async function populateEditor() {
-            // Decrypt general data first
-            const [header, subheader, footer] = await Promise.all([
-                cryptoUtils.decrypt(siteData.header),
-                cryptoUtils.decrypt(siteData.subheader),
-                cryptoUtils.decrypt(siteData.footer)
-            ]);
-            headerInput.value = header;
-            subheaderInput.value = subheader;
-            footerInput.value = footer;
+        function populateEditor() {
+            headerInput.value = siteData.header;
+            subheaderInput.value = siteData.subheader;
+            footerInput.value = siteData.footer;
             lockContentToggle.checked = siteData.projectLockingEnabled;
             matrixBgToggle.checked = siteData.matrixBackgroundEnabled;
+            matrixSpeedInput.value = siteData.matrixSpeed;
+            customBgToggle.checked = siteData.customBgEnabled;
+            customBgFilenameInput.value = siteData.customBgFilename;
+            smallCardLiquidToggle.checked = siteData.smallCardLiquidEffect;
+            modalLiquidToggle.checked = siteData.modalLiquidEffect;
 
-            // Animations
             const settings = siteData.animationSettings;
             animationTypeSelect.value = settings.type;
             rainbowSpeedInput.value = settings.rainbowSpeed;
             rainbowMotionSelect.value = settings.rainbowMotion;
             chaseSpeedInput.value = settings.chaseSpeed;
+            
             updateEditorVisibility();
             
-            // Projects
             projectEditorForms.innerHTML = '<h3>Projects</h3>';
-            for (const [index, project] of siteData.projects.entries()) {
+            siteData.projects.forEach((project, index) => {
                 const formWrapper = document.createElement('div');
-                formWrapper.className = 'draggable-form p-4 my-2 border border-transparent rounded-lg glass';
+                formWrapper.className = 'draggable-form p-4 my-2 border border-transparent rounded-lg glass liquid-effect-active';
                 formWrapper.setAttribute('draggable', 'true');
                 formWrapper.dataset.index = index;
                 const lockIcon = project.locked ? '🔒' : '🔓';
                 const lockClass = project.locked ? 'bg-red-500/30' : 'bg-green-500/30';
                 
-                const [title, subtitle, description] = await Promise.all([
-                    cryptoUtils.decrypt(project.title),
-                    cryptoUtils.decrypt(project.subtitle),
-                    cryptoUtils.decrypt(project.description)
-                ]);
-
                 formWrapper.innerHTML = `
                     <h3 class="flex justify-between items-center !mt-0 !pt-0 !border-none">
-                        <span>Project: ${title}</span>
+                        <span>Project: ${project.title}</span>
                         <div class="flex items-center gap-2">
                             <button class="toggle-lock-btn editor-btn text-sm ${lockClass}" data-id="${project.id}" style="display: ${siteData.projectLockingEnabled ? 'block' : 'none'}">${lockIcon}</button>
                             <button class="remove-project-btn editor-btn danger text-sm" data-id="${project.id}">Remove</button>
                         </div>
                     </h3>
-                    <label>Title</label><input type="text" value="${title}" data-index="${index}" data-field="title">
-                    <label>Subtitle</label><input type="text" value="${subtitle}" data-index="${index}" data-field="subtitle">
-                    <label>Description</label><textarea data-index="${index}" data-field="description" rows="4">${description}</textarea>
+                    <label>Title</label><input type="text" value="${project.title}" data-index="${index}" data-field="title">
+                    <label>Subtitle</label><input type="text" value="${project.subtitle}" data-index="${index}" data-field="subtitle">
+                    <label>Description</label><textarea data-index="${index}" data-field="description" rows="4">${project.description}</textarea>
                     <label>Icon Filename (e.g., dpk1.png)</label><input type="text" value="${project.icon}" data-index="${index}" data-field="icon">
                     <label>GitHub Link</label><input type="text" value="${project.link}" data-index="${index}" data-field="link">`;
                 projectEditorForms.appendChild(formWrapper);
-            }
+            });
             addDragListeners('.draggable-form', siteData.projects, populateEditor);
 
-            // Socials
             const socialFormsContainer = document.createElement('div');
             socialLinksEditor.querySelectorAll('.draggable-social-form').forEach(el => el.remove());
-            for (const [index, link] of siteData.socialLinks.entries()) {
+            siteData.socialLinks.forEach((link, index) => {
                 const formWrapper = document.createElement('div');
-                formWrapper.className = 'draggable-social-form p-4 my-2 border border-transparent rounded-lg glass';
+                formWrapper.className = 'draggable-social-form p-4 my-2 border border-transparent rounded-lg glass liquid-effect-active';
                 formWrapper.setAttribute('draggable', 'true');
                 formWrapper.dataset.index = index;
-                const name = await cryptoUtils.decrypt(link.name);
                 formWrapper.innerHTML = `
                      <h4 class="flex justify-between items-center text-sm font-bold">
-                         <span>Link: ${name}</span>
+                         <span>Link: ${link.name}</span>
                          <button class="remove-social-btn editor-btn danger text-sm" data-id="${link.id}">Remove</button>
                     </h4>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label>Name</label><input type="text" value="${name}" data-index="${index}" data-field="name" data-type="social"></div>
+                        <div><label>Name</label><input type="text" value="${link.name}" data-index="${index}" data-field="name" data-type="social"></div>
                         <div><label>URL</label><input type="text" value="${link.url}" data-index="${index}" data-field="url" data-type="social"></div>
                     </div>
                 `;
                 socialFormsContainer.appendChild(formWrapper);
-            }
+            });
             socialLinksEditor.insertBefore(socialFormsContainer, document.getElementById('add-social-link-btn'));
             addDragListeners('.draggable-social-form', siteData.socialLinks, populateEditor);
         }
 
-        async function handleEditorInput(e) {
+        function handleEditorInput(e) {
             const target = e.target;
             const settings = siteData.animationSettings;
-
-            // Handle general inputs
             const { index, field, type } = target.dataset;
+
             if (index && field) {
                 const targetArray = type === 'social' ? siteData.socialLinks : siteData.projects;
-                if (field === 'icon' || field === 'link' || field === 'url') {
-                    targetArray[parseInt(index)][field] = target.value;
-                } else {
-                    targetArray[parseInt(index)][field] = await cryptoUtils.encrypt(target.value);
-                }
-            } else if (target.id === 'header-input') siteData.header = await cryptoUtils.encrypt(target.value);
-            else if (target.id === 'subheader-input') siteData.subheader = await cryptoUtils.encrypt(target.value);
-            else if (target.id === 'footer-input') siteData.footer = await cryptoUtils.encrypt(target.value);
+                targetArray[parseInt(index)][field] = target.value;
+            } else if (target.id === 'header-input') siteData.header = target.value;
+            else if (target.id === 'subheader-input') siteData.subheader = target.value;
+            else if (target.id === 'footer-input') siteData.footer = target.value;
             else if (target.id === 'lock-content-toggle') {
                 siteData.projectLockingEnabled = target.checked;
                 populateEditor(); 
-            } else if (target.id === 'matrix-bg-toggle') {
-                siteData.matrixBackgroundEnabled = target.checked;
-            }
-            // Handle animation inputs
+            } 
+            else if (target.id === 'matrix-bg-toggle') siteData.matrixBackgroundEnabled = target.checked;
+            else if (target.id === 'matrix-speed-input') siteData.matrixSpeed = parseInt(target.value) || 33;
+            else if (target.id === 'custom-bg-toggle') siteData.customBgEnabled = target.checked;
+            else if (target.id === 'custom-bg-filename-input') siteData.customBgFilename = target.value;
+            else if (target.id === 'small-card-liquid-toggle') siteData.smallCardLiquidEffect = target.checked;
+            else if (target.id === 'modal-liquid-toggle') siteData.modalLiquidEffect = target.checked;
             else if (target.id === 'animation-type-select') settings.type = target.value;
             else if (target.id === 'rainbow-speed-input') settings.rainbowSpeed = parseFloat(target.value) || 0;
             else if (target.id === 'rainbow-motion-select') settings.rainbowMotion = target.value;
@@ -872,12 +829,17 @@
             });
         }
         let clickCount = 0;
+        let clickTimer = null;
         function handleUnlockClick() {
             clickCount++;
+            clearTimeout(clickTimer);
+            clickTimer = setTimeout(() => { clickCount = 0; }, 1000);
+
             if (clickCount >= 10) {
                 document.getElementById('password-modal').classList.remove('hidden');
                 document.getElementById('password-input').focus();
                 clickCount = 0;
+                clearTimeout(clickTimer);
             }
         }
         function unlockEditor() {
@@ -895,7 +857,7 @@
         document.getElementById('password-submit').addEventListener('click', unlockEditor);
         document.getElementById('password-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') unlockEditor(); });
 
-        projectsContainer.addEventListener('click', async (e) => {
+        projectsContainer.addEventListener('click', (e) => {
             const card = e.target.closest('.project-card');
             if (!card || e.target.closest('a')) return;
             const hirePasswordModal = document.getElementById('hire-password-modal');
@@ -906,15 +868,15 @@
                 const projectIndex = card.dataset.projectIndex;
                 const project = siteData.projects[projectIndex];
                 if (project) {
-                    const [title, subtitle, description] = await Promise.all([
-                        cryptoUtils.decrypt(project.title),
-                        cryptoUtils.decrypt(project.subtitle),
-                        cryptoUtils.decrypt(project.description)
-                    ]);
-                    modalIcon.innerHTML = `<img src="images/${project.icon}" alt="${title} icon" draggable="false" onerror="this.src='https://placehold.co/50x50/1a1a2e/ffffff?text=?'; this.onerror=null;">`;
-                    modalTitle.textContent = title;
-                    modalSubtitle.textContent = subtitle;
-                    modalDescription.textContent = description;
+                    const modalContent = document.querySelector('#project-modal .project-modal-content');
+                    modalContent.classList.toggle('liquid-effect-active', siteData.modalLiquidEffect);
+                    modalIcon.classList.toggle('liquid-effect-active', siteData.modalLiquidEffect);
+                    modalLink.classList.toggle('liquid-effect-active', siteData.modalLiquidEffect);
+
+                    modalIcon.innerHTML = `<img src="images/${project.icon}" alt="${project.title} icon" draggable="false" onerror="this.src='https://placehold.co/50x50/1a1a2e/ffffff?text=?'; this.onerror=null;">`;
+                    modalTitle.textContent = project.title;
+                    modalSubtitle.textContent = project.subtitle;
+                    modalDescription.textContent = project.description;
                     modalLink.href = project.link;
                     projectModal.classList.add('visible');
                     applyAnimationEffect();
@@ -940,7 +902,6 @@
         projectModal.addEventListener('click', (e) => { if (e.target === projectModal) closeProjectModal(); });
         modalCloseBtn.addEventListener('click', closeProjectModal);
         
-        // --- DOWNLOAD LOGIC ---
         function generateAndDownloadHtml() {
             const bakedSiteData = JSON.stringify(siteData, null, 4);
             const fullScriptContent = document.querySelector('script:not([src])').textContent;
@@ -948,8 +909,11 @@
                 /let siteData = {[\s\S]*?};/, 
                 `let siteData = ${bakedSiteData};`
             );
+
+            const editorPanelClone = document.getElementById('editor-panel').cloneNode(true);
+            editorPanelClone.classList.add('hidden');
+
             const bodyContent = `
-                ${document.getElementById('protection-overlay').outerHTML}
                 ${document.getElementById('matrix-canvas').outerHTML}
                 ${document.querySelector('.blob1').outerHTML}
                 ${document.querySelector('.blob2').outerHTML}
@@ -957,7 +921,7 @@
                 ${document.getElementById('main-content').outerHTML}
                 ${document.getElementById('password-modal').outerHTML}
                 ${document.getElementById('hire-password-modal').outerHTML}
-                ${document.getElementById('editor-panel').outerHTML}
+                ${editorPanelClone.outerHTML}
                 ${document.getElementById('exit-preview-btn').outerHTML}
                 ${document.getElementById('project-modal').outerHTML}
             `;
@@ -974,7 +938,7 @@
             <style id="main-styles">${document.getElementById('main-styles').textContent}<\/style>
             <style id="editor-styles">${document.getElementById('editor-styles').textContent}<\/style>
         </head>
-        <body class="p-4 sm:p-6 lg:p-8">
+        <body class="p-4 sm:p-6 lg:p-8" style="${document.body.style.cssText}">
             ${bodyContent}
             <script>${scriptWithBakedData}<\/script>
         </body>
@@ -989,11 +953,9 @@
             URL.revokeObjectURL(link.href);
         }
 
-
-        // --- EVENT LISTENERS ---
         editorPanel.addEventListener('input', handleEditorInput);
         
-        editorPanel.addEventListener('click', async (e) => {
+        editorPanel.addEventListener('click', (e) => {
             const target = e.target;
             const btn = target.closest('button');
             if (!btn) return;
@@ -1010,30 +972,20 @@
                 siteData.socialLinks = siteData.socialLinks.filter(l => l.id !== idToRemove);
             } else if (btn.id === 'add-project-btn') {
                 const newId = siteData.projects.length > 0 ? Math.max(...siteData.projects.map(p => p.id)) + 1 : 1;
-                siteData.projects.push({
-                    id: newId, 
-                    title: await cryptoUtils.encrypt("New Project"), 
-                    subtitle: await cryptoUtils.encrypt("A brief description"), 
-                    description: await cryptoUtils.encrypt("Detailed description of the new project."), 
-                    icon: "new_icon.png", 
-                    link: "#", 
-                    locked: false
-                });
+                siteData.projects.push({id: newId, title: "New Project", subtitle: "A brief description", description: "Detailed description of the new project.", icon: "new_icon.png", link: "#", locked: false});
             } else if (btn.id === 'add-social-link-btn') {
                 const newId = siteData.socialLinks.length > 0 ? Math.max(...siteData.socialLinks.map(l => l.id)) + 1 : 1;
-                siteData.socialLinks.push({
-                    id: newId, 
-                    name: await cryptoUtils.encrypt("New Link"), 
-                    url: "#"
-                });
+                siteData.socialLinks.push({id: newId, name: "New Link", url: "#"});
             } else if (btn.id === 'download-html-btn') {
-                generateAndDownloadHtml(); return;
+                generateAndDownloadHtml(); 
             } else if (btn.id === 'preview-btn') {
                 editorPanel.classList.add('hidden'); document.body.classList.add('in-preview-mode'); return;
             } else if (btn.id === 'close-editor') {
                  editorPanel.classList.add('hidden'); document.body.classList.remove('in-preview-mode'); return;
             } else { return; }
-            renderAll(); populateEditor();
+            
+            renderAll(); 
+            populateEditor();
         });
 
         document.getElementById('exit-preview-btn').addEventListener('click', () => {
@@ -1041,12 +993,16 @@
              document.body.classList.remove('in-preview-mode');
         });
         document.body.addEventListener('contextmenu', (e) => {
+            const el = document.getElementById('editor-panel');
+            if (!el.classList.contains('hidden') && el.contains(e.target)) return;
             e.preventDefault();
         });
 
         // --- INITIALIZATION ---
+        devToolsProtection.start(); // Start the anti-inspection script
         renderAll();
     });
     </script>
 </body>
 </html>
+
